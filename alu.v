@@ -60,39 +60,40 @@ module alu(
         .neg(neg_result)
     );
 
-    always @(posedge btnU) begin
+    always @(posedge btnC or posedge btnU) begin
+    if (btnU) begin
         A <= 8'b0;
         B <= 8'b0;
         Y <= 8'b0;
+    end else begin
+        case (op_sel)
+            4'h0: Y <= add_result;
+            4'h1: Y <= sub_result;
+            4'h2: Y <= A << 1;
+            4'h3: Y <= A >> 1;
+            4'h4: begin
+                if (A == B) Y <= 8'b0;
+                else if (A > B) Y <= 8'b1;
+                else Y <= 8'b11111111;
+            end
+            4'h5: Y <= A & B;
+            4'h6: Y <= A | B;
+            4'h7: Y <= A ^ B;
+            4'h8: Y <= ~(A & B);
+            4'h9: Y <= ~(A | B);
+            4'hA: Y <= ~(A ^ B);
+            4'hB: Y <= ~A;
+            4'hC: Y <= neg_result;
+            4'hD: A <= Y;
+            4'hE: begin
+                A <= A ^ B;
+                B <= A ^ B;
+                A <= A ^ B;
+            end
+            4'hF: A <= input_bits;
+            default: Y <= 8'b0;
+        endcase
     end
-
-    always @(posedge btnC) begin
-    case (op_sel)
-        4'h0: Y <= add_result;
-        4'h1: Y <= sub_result;
-        4'h2: Y <= A << 1;
-        4'h3: Y <= A >> 1;
-        4'h4: begin
-            if (A == B) Y <= 8'b0;
-            else (A > B) Y <= 8'b1;
-        end
-        4'h5: Y <= A & B;
-        4'h6: Y <= A | B;
-        4'h7: Y <= A ^ B;
-        4'h8: Y <= ~(A & B);
-        4'h9: Y <= ~(A | B);
-        4'hA: Y <= ~(A ^ B);
-        4'hB: Y <= ~A;
-        4'hC: Y <= neg_result;
-        4'hD: A <= Y;
-        4'hE: begin
-            A = A ^ B;
-            B = A ^ B;
-            A = A ^ B;
-        end
-        4'hF: A <= input_bits;
-        default: Y <= 8'b0;
-    endcase
 
     ledA <= A;
     ledB <= B;
