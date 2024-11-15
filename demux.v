@@ -19,7 +19,6 @@ module demux(
 );
 
     always @(*) begin
-        // Initialize all enable signals to 0
         add_en = 0;
         sub_en = 0;
         shl_en = 0;
@@ -37,7 +36,6 @@ module demux(
         swp_en = 0;
         load_en = 0;
 
-        // Set the enable signal based on the operation selector
         case (op_sel)
             4'h0: add_en = 1;
             4'h1: sub_en = 1;
