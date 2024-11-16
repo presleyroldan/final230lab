@@ -1,20 +1,15 @@
 module top(
     input clk,
-    input btnC,
+    input btnC, 
     input btnU,
     input [15:0] sw,
     output [15:0] led,
-    output [6:0] seg,
+    output [6:0] seg, 
     output [3:0] an
 );
+    wire [3:0] sw_sel = sw[3:0];   
+    wire [7:0] sw_bits = sw[15:8];
 
-    wire [3:0] sw_sel;
-    assign sw_sel = sw[3:0];
-    
-    wire [15:8] sw_bits;
-    assign sw_bits = sw[15:8];
-    
-    
     wire [7:0] A_val;
     wire [7:0] B_val;
     wire [7:0] Y_val;
@@ -29,7 +24,7 @@ module top(
 
     alu my_alu (
         .op_sel(sw_sel),
-        .input_bits(sw_bits),
+        .input_bits(sw_input_bits),
         .btnC(btnC),
         .btnU(btnU),
         .ledA(A_val),
@@ -37,12 +32,18 @@ module top(
         .Y(Y_val)
     );
 
-    assign led = {A_val,B_val};
+    assign led[15:8] = A_val;
+    assign led[7:0] = B_val;
 
     seven_seg_scanner scanner (
         .div_clk(div_clk),
         .reset(btnU),
         .an(an)
+    );
+
+    seven_seg_decoder decoder (
+        .digit(selected_value),
+        .seg(seg)
     );
 
     always @(*) begin
@@ -55,8 +56,4 @@ module top(
         endcase
     end
 
-    seven_seg_decoder decoder (
-        .digit(selected_value),
-        .seg(seg)
-    );
 endmodule
